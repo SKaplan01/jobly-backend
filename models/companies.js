@@ -8,7 +8,6 @@ class Company {
   //returns object that contains key of baseQuery with value of query string and key of values with query data
   static buildQueryGetAll(...args) {
     let values = [];
-    console.log(args);
     let baseQuery = `SELECT handle, name, num_employees, description, logo_url FROM companies`;
     if (args.length === 0) {
       return { baseQuery, values };
@@ -36,7 +35,11 @@ class Company {
       }
       if (args[0].min_employees && args[0].max_employees) {
         if (+args[0].min_employees > +args[0].max_employees) {
-          throw new Error('min must be less than max');
+          let error = new Error(
+            'min_employees must be less than max_employees'
+          );
+          error.status = 422;
+          throw error;
         }
       }
     }
@@ -46,7 +49,6 @@ class Company {
   //runs query that was built in buildQueryGetAll()
   //return result.rows from db
   static async runQueryGetAll({ baseQuery, values }) {
-    console.log(baseQuery, values);
     let results = await db.query(baseQuery, values);
     return results.rows;
   }
