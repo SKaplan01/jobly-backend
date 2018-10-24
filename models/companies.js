@@ -53,6 +53,22 @@ class Company {
     return results.rows;
   }
 
+  //gets one company with a specific handle
+  static async getOne(handle) {
+    let result = await db.query(
+      `SELECT handle, name, num_employees, description, logo_url 
+      FROM companies
+      WHERE handle=$1`,
+      [handle]
+    );
+    if (result.rows.length === 0) {
+      let error = new Error(`Company ${handle} not found`);
+      error.status = 404;
+      throw error;
+    }
+    return result.rows[0];
+  }
+
   //TODO make getter and setter to lowercase handle and use lowercase version in db
 
   /** register new company -- returns

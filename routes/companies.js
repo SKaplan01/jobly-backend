@@ -32,9 +32,10 @@ router.post('/', async function(req, res, next) {
   try {
     const result = validate(req.body, createCompanySchema);
     if (!result.valid) {
+      console.log('validator: result not valid');
       let error = {};
       error.message = result.errors.map(error => error.stack);
-      error.stats = 400;
+      error.status = 400;
       return next(error);
     }
     const { handle, name, num_employees, description, logo_url } = req.body;
@@ -45,6 +46,16 @@ router.post('/', async function(req, res, next) {
       description,
       logo_url
     });
+    return res.json({ company });
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.get('/:handle', async function(req, res, next) {
+  try {
+    let { handle } = req.params;
+    let company = await Company.getOne(handle);
     return res.json({ company });
   } catch (err) {
     next(err);
