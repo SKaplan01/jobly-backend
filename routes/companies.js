@@ -2,6 +2,7 @@ const express = require('express');
 const router = new express.Router();
 const Company = require('../models/companies');
 const createCompanySchema = require('../schema/createCompanySchema.json');
+const updateCompanySchema = require('../schema/updateCompanySchema.json');
 const { validate } = require('jsonschema');
 
 //gets all companies matching optional query string parameters
@@ -32,7 +33,6 @@ router.post('/', async function(req, res, next) {
   try {
     const result = validate(req.body, createCompanySchema);
     if (!result.valid) {
-      console.log('validator: result not valid');
       let error = {};
       error.message = result.errors.map(error => error.stack);
       error.status = 400;
@@ -56,6 +56,23 @@ router.get('/:handle', async function(req, res, next) {
   try {
     let { handle } = req.params;
     let company = await Company.getOne(handle);
+    return res.json({ company });
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.patch('/:handle', async function(req, res, next) {
+  try {
+    const result = validate(req.body, updateCompanySchema);
+    if (!result.valid) {
+      let error = {};
+      error.message = result.errors.map(error => error.stack);
+      error.status = 400;
+      return next(error);
+    }
+    let { handle } = req.params;
+    let company = await Company.updateOne(handle, req.body);
     return res.json({ company });
   } catch (err) {
     next(err);

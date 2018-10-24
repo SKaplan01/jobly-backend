@@ -1,6 +1,7 @@
 /** Company class for jobly */
 
 const db = require('../db');
+const sqlForPartialUpdate = require('../helpers/partialUpdate');
 
 class Company {
   //takes optional argument that is an object
@@ -82,6 +83,17 @@ class Company {
       RETURNING handle, name, num_employees, description, logo_url`,
       [handle, name, num_employees, description, logo_url]
     );
+    return result.rows[0];
+  }
+
+  static async updateOne(handle, companyUpdates) {
+    let { query, values } = sqlForPartialUpdate(
+      'companies',
+      companyUpdates,
+      'handle',
+      handle
+    );
+    let result = await db.query(query, values);
     return result.rows[0];
   }
 }

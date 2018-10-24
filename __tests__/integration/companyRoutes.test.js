@@ -56,6 +56,33 @@ describe('Get one company with invalid handle', function() {
   });
 });
 
+describe('Update one company', function() {
+  it('should return the updated company', async function() {
+    const response = await request(app)
+      .patch('/companies/amz')
+      .send({ num_employees: 500, description: 'sends drones to your house' });
+    expect(response.body.company.num_employees).toBe(500);
+    expect(response.body.company.description).toBe(
+      'sends drones to your house'
+    );
+    expect(response.body.company.name).toBe('amazon');
+    expect(response.statusCode).toBe(200);
+  });
+});
+
+describe('Invalid update of one company', function() {
+  it('should return error if data to update is invalid', async function() {
+    const response = await request(app)
+      .patch('/companies/amz')
+      .send({
+        num_employees: 500,
+        description: 'sends drones to your house',
+        cats: true
+      });
+    expect(response.statusCode).toBe(400);
+  });
+});
+
 afterEach(async function() {
   await db.query(`DELETE from companies`);
 });
