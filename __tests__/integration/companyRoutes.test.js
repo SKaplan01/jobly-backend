@@ -83,6 +83,17 @@ describe('Invalid update of one company', function() {
   });
 });
 
+describe('Delete one company', function() {
+  it('should delete a company from database and return a message - company deleted', async function() {
+    const response = await request(app).delete('/companies/amz');
+    expect(response.statusCode).toBe(200);
+    expect(response.body.message).toBe('Company deleted');
+
+    const dbData = await request(app).get('/companies');
+    expect(dbData.body.companies.length).toBe(2);
+  });
+});
+
 afterEach(async function() {
   await db.query(`DELETE from companies`);
 });

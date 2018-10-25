@@ -24,7 +24,7 @@ router.get('/', async function(req, res, next) {
     }
     return res.json({ companies });
   } catch (err) {
-    next(err);
+    return next(err);
   }
 });
 
@@ -48,7 +48,7 @@ router.post('/', async function(req, res, next) {
     });
     return res.json({ company });
   } catch (err) {
-    next(err);
+    return next(err);
   }
 });
 
@@ -58,7 +58,7 @@ router.get('/:handle', async function(req, res, next) {
     let company = await Company.getOne(handle);
     return res.json({ company });
   } catch (err) {
-    next(err);
+    return next(err);
   }
 });
 
@@ -75,7 +75,17 @@ router.patch('/:handle', async function(req, res, next) {
     let company = await Company.updateOne(handle, req.body);
     return res.json({ company });
   } catch (err) {
-    next(err);
+    return next(err);
+  }
+});
+
+router.delete('/:handle', async function(req, res, next) {
+  try {
+    let { handle } = req.params;
+    await Company.deleteOne(handle);
+    return res.json({ message: 'Company deleted' });
+  } catch (err) {
+    return next(err);
   }
 });
 

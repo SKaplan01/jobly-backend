@@ -86,6 +86,7 @@ class Company {
     return result.rows[0];
   }
 
+  //update data for one company. Returns updated company.
   static async updateOne(handle, companyUpdates) {
     let { query, values } = sqlForPartialUpdate(
       'companies',
@@ -95,6 +96,9 @@ class Company {
     );
     let result = await db.query(query, values);
     return result.rows[0];
+  }
+  static async deleteOne(handle) {
+    db.query(`DELETE FROM companies WHERE handle=$1`, [handle]);
   }
 }
 
