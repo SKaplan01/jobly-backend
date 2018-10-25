@@ -4,7 +4,7 @@ const db = require('../db');
 const sqlForPartialUpdate = require('../helpers/partialUpdate');
 
 class Company {
-  //takes object containing containing search, min, and max where values can be undefined
+  //takes object containing optional search, min, and max
   //returns list of companies filtered by search criteria
   static async getAll({ search, min, max }) {
     search = search === undefined ? '%%' : `${search}%`;
@@ -17,8 +17,11 @@ class Company {
     }
     //allows for search results to include companies who did not disclose num_employees (it's null)
     let result = await db.query(
-      `SELECT handle, name, num_employees, description, logo_url FROM companies WHERE (handle ILIKE $1 OR name ILIKE $1)
-      AND (num_employees>=$2 AND num_employees<=$3) OR (num_employees IS null)`,
+      `SELECT handle, name, num_employees, description, logo_url 
+      FROM companies 
+      WHERE (handle ILIKE $1 OR name ILIKE $1)
+      AND (num_employees>=$2 AND num_employees<=$3) 
+      OR (num_employees IS null)`,
       [search, min, max]
     );
     return result.rows;
@@ -27,17 +30,29 @@ class Company {
   //gets one company with a specific handle
   static async getOne(handle) {
     let result = await db.query(
-      `SELECT handle, name, num_employees, description, logo_url 
+      `SELECT handle, name, num_employees, description, logo_url
       FROM companies
       WHERE handle=$1`,
       [handle]
     );
+
     if (result.rows.length === 0) {
       let error = new Error(`Company ${handle} not found`);
       error.status = 404;
       throw error;
     }
+
     return result.rows[0];
+  }
+
+  static async getJobs(handle) {
+    let result = await db.query(
+      `SELECT id, title, salary, equity, 
+    company_handle, date_posted FROM jobs WHERE company_handle=$1`,
+      [handle]
+    );
+
+    return result.rows;
   }
 
   /** register new company -- returns

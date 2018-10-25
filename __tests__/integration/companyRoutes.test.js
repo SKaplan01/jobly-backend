@@ -11,6 +11,13 @@ beforeEach(async function() {
     ('goog', 'google', '5000','made a search engine'),
     ('ax', 'axle', '4', 'make media management software')`
   );
+
+  await db.query(
+    `INSERT INTO jobs 
+    (id, title, salary, equity, company_handle, date_posted)
+    VALUES (1, 'software', 100000, 0.2, 'amz', CURRENT_TIMESTAMP),
+    (2, 'cook', 60000, 0, 'amz', CURRENT_TIMESTAMP)`
+  );
 });
 
 describe('POST /companies', function() {
@@ -64,6 +71,7 @@ describe('GET /company/:handle', function() {
   it('should return one company matching the given handle', async function() {
     const response = await request(app).get('/companies/amz');
     expect(response.body.company.name).toBe('amazon');
+    expect(response.body.company.jobs.length).toBe(2);
     expect(response.statusCode).toBe(200);
   });
   it('should return error given an invalid handle', async function() {

@@ -14,6 +14,13 @@ beforeEach(async function() {
     ('goog', 'google', '5000','made a search engine'),
     ('ax', 'axle', '4', 'make media management software')`
   );
+
+  await db.query(
+    `INSERT INTO jobs 
+    (id, title, salary, equity, company_handle, date_posted)
+    VALUES (1, 'software', 100000, 0.2, 'amz', CURRENT_TIMESTAMP),
+    (2, 'cook', 60000, 0, 'amz', CURRENT_TIMESTAMP)`
+  );
 });
 
 describe('Search for list of companies', function() {
@@ -54,6 +61,13 @@ describe('Search for list of companies', function() {
     expect(result3[0].name).toBe('axle');
     expect(result4.length).toBe(2);
     expect(result5[0].name).toBe('amazon');
+  });
+});
+
+describe('Search for list of jobs from one company', function() {
+  it('should return all jobs posted by that company', async function() {
+    const result = await Company.getJobs('amz');
+    expect(result.length).toBe(2);
   });
 });
 
