@@ -7,9 +7,12 @@ class Company {
   //takes object containing optional search, min, and max
   //returns list of companies filtered by search criteria
   static async getAll({ search, min, max }) {
+    //if search, min, or max are undefined then they will default to values shown below
     search = search === undefined ? '%%' : `${search}%`;
     min = min === undefined ? -1 : +min;
     max = max === undefined ? 1000000000 : +max;
+
+    //if min is greater than max then throw 422 error
     if (min > max) {
       let error = new Error('min_employees must be less than max_employees');
       error.status = 422;
