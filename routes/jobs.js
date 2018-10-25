@@ -71,14 +71,14 @@ router.patch('/:id', async function(req, res, next) {
 });
 
 // //delete company from database. Returns message
-// router.delete('/:handle', async function(req, res, next) {
-//   try {
-//     let { handle } = req.params;
-//     await Company.deleteOne(handle);
-//     return res.json({ message: 'Company deleted' });
-//   } catch (err) {
-//     return next(err);
-//   }
-// });
+router.delete('/:id', async function(req, res, next) {
+  try {
+    let { id } = req.params;
+    await Job.deleteOne(id);
+    return res.json({ message: 'Job deleted' });
+  } catch (err) {
+    return next(err);
+  }
+});
 
 module.exports = router;

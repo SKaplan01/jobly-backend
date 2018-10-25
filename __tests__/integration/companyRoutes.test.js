@@ -13,7 +13,7 @@ beforeEach(async function() {
   );
 });
 
-describe('Make post to add company', function() {
+describe('POST /companies', function() {
   it('should insert new company into db and return company object', async function() {
     const response = await request(app)
       .post('/companies')
@@ -40,7 +40,7 @@ describe('Make post to add company', function() {
   });
 });
 
-describe('Search for list companies', function() {
+describe('GET /companies', function() {
   it('should run the query string that was built in Company.getAll())', async function() {
     const response1 = await request(app).get('/companies');
     const response2 = await request(app).get('/companies?search=a');
@@ -60,7 +60,7 @@ describe('Search for list companies', function() {
   });
 });
 
-describe('Get one company by handle', function() {
+describe('GET /company/:handle', function() {
   it('should return one company matching the given handle', async function() {
     const response = await request(app).get('/companies/amz');
     expect(response.body.company.name).toBe('amazon');
@@ -72,7 +72,7 @@ describe('Get one company by handle', function() {
   });
 });
 
-describe('Update one company', function() {
+describe('PATCH /company/:handle', function() {
   it('should return the updated company', async function() {
     const response = await request(app)
       .patch('/companies/amz')
@@ -96,7 +96,7 @@ describe('Update one company', function() {
   });
 });
 
-describe('Delete one company', function() {
+describe('DELETE /company/:handle', function() {
   it('should delete a company from database and return a message - company deleted', async function() {
     const response = await request(app).delete('/companies/amz');
     expect(response.statusCode).toBe(200);

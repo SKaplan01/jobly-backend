@@ -138,16 +138,16 @@ describe('PATCH /jobs/:id', function() {
   });
 });
 
-// describe('Delete one company', function() {
-//   it('should delete a company from database and return a message - company deleted', async function() {
-//     const response = await request(app).delete('/companies/amz');
-//     expect(response.statusCode).toBe(200);
-//     expect(response.body.message).toBe('Company deleted');
+describe('DELETE /jobs/:id', function() {
+  it('should delete a job from database and return a message - job deleted', async function() {
+    const response = await request(app).delete('/jobs/1');
+    expect(response.statusCode).toBe(200);
+    expect(response.body.message).toBe('Job deleted');
 
-//     const dbData = await request(app).get('/companies');
-//     expect(dbData.body.companies.length).toBe(2);
-//   });
-// });
+    const dbData = await request(app).get('/jobs');
+    expect(dbData.body.jobs.length).toBe(2);
+  });
+});
 
 afterEach(async function() {
   await db.query(`DELETE from jobs`);

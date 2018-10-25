@@ -61,10 +61,10 @@ class Job {
     return result.rows[0];
   }
 
-  // //delete company from database
-  // static async deleteOne(handle) {
-  //   db.query(`DELETE FROM companies WHERE handle=$1`, [handle]);
-  // }
+  //delete company from database
+  static async deleteOne(id) {
+    db.query(`DELETE FROM jobs WHERE id=$1`, [id]);
+  }
 }
 
 module.exports = Job;
