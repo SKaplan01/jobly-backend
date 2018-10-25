@@ -15,9 +15,10 @@ class Company {
       error.status = 422;
       throw error;
     }
+    //allows for search results to include companies who did not disclose num_employees (it's null)
     let result = await db.query(
       `SELECT handle, name, num_employees, description, logo_url FROM companies WHERE (handle ILIKE $1 OR name ILIKE $1)
-      AND num_employees>$2 AND num_employees<$3`,
+      AND (num_employees>=$2 AND num_employees<=$3) OR (num_employees IS null)`,
       [search, min, max]
     );
     return result.rows;

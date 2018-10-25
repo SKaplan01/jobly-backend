@@ -18,15 +18,14 @@ describe('Make post to add company', function() {
     const response = await request(app)
       .post('/companies')
       .send({ handle: 'starb', name: 'Starbucks' });
-    const dbData = await request(app).get('/companies');
     expect(response.body.company.name).toBe('Starbucks');
     expect(response.body.company).toHaveProperty('num_employees');
     expect(response.statusCode).toBe(200);
+    const dbData = await request(app).get('/companies');
+    console.log(dbData.body);
     expect(dbData.body.companies.length).toBe(4);
   });
-});
 
-describe('Make invalid post to add company', function() {
   it('should return error when posting new company with invalid data', async function() {
     const response1 = await request(app)
       .post('/companies')
@@ -38,6 +37,26 @@ describe('Make invalid post to add company', function() {
     expect(response1.statusCode).toBe(400);
     expect(response2.statusCode).toBe(400);
     expect(dbData.body.companies.length).toBe(3);
+  });
+});
+
+describe('Search for list companies', function() {
+  it('should run the query string that was built in Company.getAll())', async function() {
+    const response1 = await request(app).get('/companies');
+    const response2 = await request(app).get('/companies?search=a');
+    const response3 = await request(app).get('/companies?max=5');
+    expect(response1.body.companies.length).toBe(3);
+    expect(response2.body.companies.length).toBe(2);
+    expect(response3.body.companies[0].name).toBe('axle');
+    expect(response1.statusCode).toBe(200);
+  });
+
+  it('should return an error when max is less than min', async function() {
+    const response = await request(app).get('/companies?min=10&max=9');
+    expect(response.statusCode).toBe(422);
+    expect(response.body.message).toBe(
+      'min_employees must be less than max_employees'
+    );
   });
 });
 
