@@ -47,9 +47,6 @@ describe('Get one company by handle', function() {
     expect(response.body.company.name).toBe('amazon');
     expect(response.statusCode).toBe(200);
   });
-});
-
-describe('Get one company with invalid handle', function() {
   it('should return error given an invalid handle', async function() {
     const response = await request(app).get('/companies/foo');
     expect(response.statusCode).toBe(404);
@@ -68,9 +65,6 @@ describe('Update one company', function() {
     expect(response.body.company.name).toBe('amazon');
     expect(response.statusCode).toBe(200);
   });
-});
-
-describe('Invalid update of one company', function() {
   it('should return error if data to update is invalid', async function() {
     const response = await request(app)
       .patch('/companies/amz')
