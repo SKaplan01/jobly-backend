@@ -18,21 +18,21 @@ class Job {
     return result.rows;
   }
 
-  //gets one company with a specific handle
-  // static async getOne(handle) {
-  //   let result = await db.query(
-  //     `SELECT handle, name, num_employees, description, logo_url
-  //     FROM companies
-  //     WHERE handle=$1`,
-  //     [handle]
-  //   );
-  //   if (result.rows.length === 0) {
-  //     let error = new Error(`Company ${handle} not found`);
-  //     error.status = 404;
-  //     throw error;
-  //   }
-  //   return result.rows[0];
-  // }
+  // gets one job with a specific id
+  static async getOne(id) {
+    let result = await db.query(
+      `SELECT id, title, salary, equity, company_handle, date_posted
+      FROM jobs
+      WHERE id=$1`,
+      [id]
+    );
+    if (result.rows.length === 0) {
+      let error = new Error(`Job ${id} not found`);
+      error.status = 404;
+      throw error;
+    }
+    return result.rows[0];
+  }
 
   /** create new job -- returns
    *    {id, title, salary, equity, company_handle, date_posted}
@@ -54,17 +54,12 @@ class Job {
     }
   }
 
-  //update data for one company. Returns updated company.
-  // static async updateOne(handle, companyUpdates) {
-  //   let { query, values } = sqlForPartialUpdate(
-  //     'companies',
-  //     companyUpdates,
-  //     'handle',
-  //     handle
-  //   );
-  //   let result = await db.query(query, values);
-  //   return result.rows[0];
-  // }
+  // update data for one job. Returns updated job.
+  static async updateOne(id, jobUpdates) {
+    let { query, values } = sqlForPartialUpdate('jobs', jobUpdates, 'id', id);
+    let result = await db.query(query, values);
+    return result.rows[0];
+  }
 
   // //delete company from database
   // static async deleteOne(handle) {

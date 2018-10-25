@@ -13,14 +13,14 @@ beforeEach(async function() {
   );
   await db.query(
     `INSERT INTO jobs 
-    (title, salary, equity, company_handle, date_posted)
-    VALUES ('software', 100000, 0.2, 'amz', CURRENT_TIMESTAMP),
-    ('cook', 60000, 0, 'google', CURRENT_TIMESTAMP),
-    ('QA tester', 70000, 0.3, 'google', CURRENT_TIMESTAMP)`
+    (id, title, salary, equity, company_handle, date_posted)
+    VALUES (1, 'software', 100000, 0.2, 'amz', CURRENT_TIMESTAMP),
+    (2, 'cook', 60000, 0, 'google', CURRENT_TIMESTAMP),
+    (3, 'QA tester', 70000, 0.3, 'google', CURRENT_TIMESTAMP)`
   );
 });
 
-describe('Make post to add job', function() {
+describe('POST /jobs', function() {
   it('should insert new job into db and return job object', async function() {
     const response = await request(app)
       .post('/jobs')
@@ -77,7 +77,7 @@ describe('Make post to add job', function() {
   });
 });
 
-describe('Search for list of jobs', function() {
+describe('GET /jobs', function() {
   it('should get list of jobs that matches search criteria)', async function() {
     const response1 = await request(app).get('/jobs');
     const response2 = await request(app).get('/jobs?search=g');
@@ -95,41 +95,48 @@ describe('Search for list of jobs', function() {
   });
 });
 
-// describe('Get one company by handle', function() {
-//   it('should return one company matching the given handle', async function() {
-//     const response = await request(app).get('/companies/amz');
-//     expect(response.body.company.name).toBe('amazon');
-//     expect(response.statusCode).toBe(200);
-//   });
-//   it('should return error given an invalid handle', async function() {
-//     const response = await request(app).get('/companies/foo');
-//     expect(response.statusCode).toBe(404);
-//   });
-// });
+describe('GET /jobs/:id', function() {
+  it('should return one job matching the given id', async function() {
+    const response = await request(app).get('/jobs/1');
+    expect(response.body.job.company_handle).toBe('amz');
+    expect(response.statusCode).toBe(200);
+  });
+  it('should return error given an invalid id', async function() {
+    const response = await request(app).get('/jobs/500');
+    expect(response.statusCode).toBe(404);
+  });
+});
 
-// describe('Update one company', function() {
-//   it('should return the updated company', async function() {
-//     const response = await request(app)
-//       .patch('/companies/amz')
-//       .send({ num_employees: 500, description: 'sends drones to your house' });
-//     expect(response.body.company.num_employees).toBe(500);
-//     expect(response.body.company.description).toBe(
-//       'sends drones to your house'
-//     );
-//     expect(response.body.company.name).toBe('amazon');
-//     expect(response.statusCode).toBe(200);
-//   });
-//   it('should return error if data to update is invalid', async function() {
-//     const response = await request(app)
-//       .patch('/companies/amz')
-//       .send({
-//         num_employees: 500,
-//         description: 'sends drones to your house',
-//         cats: true
-//       });
-//     expect(response.statusCode).toBe(400);
-//   });
-// });
+describe('PATCH /jobs/:id', function() {
+  it('should return the updated job', async function() {
+    const response = await request(app)
+      .patch('/jobs/1')
+      .send({ salary: 50000, title: 'web development' });
+    console.log(response.body);
+    expect(response.body.job.salary).toBe(50000);
+    expect(response.body.job.title).toBe('web development');
+    expect(response.statusCode).toBe(200);
+  });
+  it('should return error if data to update is invalid', async function() {
+    const response = await request(app)
+      .patch('/jobs/1')
+      .send({
+        salary: 50000,
+        title: 'web development',
+        cats: true
+      });
+    expect(response.statusCode).toBe(400);
+  });
+  it('should return error if equity is more than 1', async function() {
+    const response = await request(app)
+      .patch('/jobs/1')
+      .send({
+        equity: 2,
+        title: 'web development'
+      });
+    expect(response.statusCode).toBe(400);
+  });
+});
 
 // describe('Delete one company', function() {
 //   it('should delete a company from database and return a message - company deleted', async function() {
