@@ -1,6 +1,6 @@
 const express = require('express');
 const router = new express.Router();
-const Company = require('../models/companies');
+const Company = require('../models/company');
 const createCompanySchema = require('../schema/createCompanySchema.json');
 const updateCompanySchema = require('../schema/updateCompanySchema.json');
 const { validate } = require('jsonschema');
@@ -9,19 +9,15 @@ const { validate } = require('jsonschema');
 //and has up to 3 keys {search:"am", min_employees: 10, max_employees: 100}
 router.get('/', async function(req, res, next) {
   try {
-    let companies;
-    if (Object.keys(req.query).length === 0) {
-      let queryValuesObject = Company.buildQueryGetAll(); //_build
-      companies = await Company.runQueryGetAll(queryValuesObject);
-    } else {
-      let { search, min_employees, max_employees } = req.query;
-      let queryValuesObject = Company.buildQueryGetAll({
-        search,
-        min_employees,
-        max_employees
-      });
-      companies = await Company.runQueryGetAll(queryValuesObject);
-    }
+    let { search, min, max } = req.query;
+    console.log('Min:', min);
+    console.log('Max:', max);
+    // if (+min > +max) {
+    //   let error = new Error('min_employees must be less than max_employees');
+    //   error.status = 422;
+    //   throw error;
+    // }
+    let companies = await Company.getAll({ search, min, max });
     return res.json({ companies });
   } catch (err) {
     return next(err);

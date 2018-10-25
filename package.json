@@ -1,7 +1,6 @@
 {
   "name": "express-jobly",
   "version": "1.0.0",
-  "description": "",
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -18,5 +17,15 @@
     "morgan": "^1.9.1",
     "pg": "^7.5.0",
     "supertest": "^3.3.0"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hasierpastor/jobly.git"
+  },
+  "keywords": [],
+  "bugs": {
+    "url": "https://github.com/hasierpastor/jobly/issues"
+  },
+  "homepage": "https://github.com/hasierpastor/jobly#readme",
+  "description": ""
 }
