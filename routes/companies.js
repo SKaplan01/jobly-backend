@@ -52,6 +52,7 @@ router.post('/', async function(req, res, next) {
   }
 });
 
+//get data about specific company. Return JSON with info about this company
 router.get('/:handle', async function(req, res, next) {
   try {
     let { handle } = req.params;
@@ -62,6 +63,7 @@ router.get('/:handle', async function(req, res, next) {
   }
 });
 
+//update company. Returns JSON with info about updated company
 router.patch('/:handle', async function(req, res, next) {
   try {
     const result = validate(req.body, updateCompanySchema);
@@ -79,6 +81,7 @@ router.patch('/:handle', async function(req, res, next) {
   }
 });
 
+//delete company from database. Returns message
 router.delete('/:handle', async function(req, res, next) {
   try {
     let { handle } = req.params;

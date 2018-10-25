@@ -70,8 +70,6 @@ class Company {
     return result.rows[0];
   }
 
-  //TODO make getter and setter to lowercase handle and use lowercase version in db
-
   /** register new company -- returns
    *    {handle, name, num_employees, description, logo_url}
    */
@@ -97,6 +95,8 @@ class Company {
     let result = await db.query(query, values);
     return result.rows[0];
   }
+
+  //delete company from database
   static async deleteOne(handle) {
     db.query(`DELETE FROM companies WHERE handle=$1`, [handle]);
   }
