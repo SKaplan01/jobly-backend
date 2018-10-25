@@ -14,7 +14,7 @@ beforeEach(async function() {
   );
 });
 
-describe('Company.runQueryGetAll()', function() {
+describe('Search', function() {
   it('should run the query string that was built in Company.buildQueryGetAll()', async function() {
     const response1 = await request(app).get('/companies');
     const response2 = await request(app).get('/companies?search=a');
