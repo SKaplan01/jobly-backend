@@ -11,7 +11,7 @@ router.get('/', async function(req, res, next) {
   try {
     let companies;
     if (Object.keys(req.query).length === 0) {
-      let queryValuesObject = Company.buildQueryGetAll();
+      let queryValuesObject = Company.buildQueryGetAll(); //_build
       companies = await Company.runQueryGetAll(queryValuesObject);
     } else {
       let { search, min_employees, max_employees } = req.query;
