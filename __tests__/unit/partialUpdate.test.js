@@ -22,4 +22,17 @@ describe('partialUpdate()', function() {
     );
     expect(query.values).toEqual([3000, 1]);
   });
+
+  it('should delete keys that start with _', function() {
+    const query = sqlForPartialUpdate(
+      'jobs',
+      { _salary: 3000, equity: 0.2 },
+      'id',
+      1
+    );
+    expect(query.query).toBe(
+      'UPDATE jobs SET equity=$1 WHERE id=$2 RETURNING *'
+    );
+    expect(query.values).toEqual([0.2, 1]);
+  });
 });

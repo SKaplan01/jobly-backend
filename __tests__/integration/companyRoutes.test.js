@@ -29,7 +29,6 @@ describe('POST /companies', function() {
     expect(response.body.company).toHaveProperty('num_employees');
     expect(response.statusCode).toBe(200);
     const dbData = await request(app).get('/companies');
-    console.log(dbData.body);
     expect(dbData.body.companies.length).toBe(4);
   });
 
@@ -67,7 +66,7 @@ describe('GET /companies', function() {
   });
 });
 
-describe('GET /company/:handle', function() {
+describe('GET /companies/:handle', function() {
   it('should return one company matching the given handle', async function() {
     const response = await request(app).get('/companies/amz');
     expect(response.body.company.name).toBe('amazon');
@@ -80,7 +79,7 @@ describe('GET /company/:handle', function() {
   });
 });
 
-describe('PATCH /company/:handle', function() {
+describe('PATCH /companies/:handle', function() {
   it('should return the updated company', async function() {
     const response = await request(app)
       .patch('/companies/amz')
@@ -102,9 +101,13 @@ describe('PATCH /company/:handle', function() {
       });
     expect(response.statusCode).toBe(400);
   });
+  it('should return error given an invalid handle', async function() {
+    const response = await request(app).get('/companies/foo');
+    expect(response.statusCode).toBe(404);
+  });
 });
 
-describe('DELETE /company/:handle', function() {
+describe('DELETE /companies/:handle', function() {
   it('should delete a company from database and return a message - company deleted', async function() {
     const response = await request(app).delete('/companies/amz');
     expect(response.statusCode).toBe(200);
@@ -112,6 +115,10 @@ describe('DELETE /company/:handle', function() {
 
     const dbData = await request(app).get('/companies');
     expect(dbData.body.companies.length).toBe(2);
+  });
+  it('should return error given an invalid handle', async function() {
+    const response = await request(app).get('/companies/foo');
+    expect(response.statusCode).toBe(404);
   });
 });
 

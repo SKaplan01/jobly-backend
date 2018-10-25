@@ -105,6 +105,10 @@ describe('GET /jobs/:id', function() {
     const response = await request(app).get('/jobs/500');
     expect(response.statusCode).toBe(404);
   });
+  it('should return error given an invalid id', async function() {
+    const response = await request(app).get('/jobs/500');
+    expect(response.statusCode).toBe(404);
+  });
 });
 
 describe('PATCH /jobs/:id', function() {
@@ -136,6 +140,10 @@ describe('PATCH /jobs/:id', function() {
       });
     expect(response.statusCode).toBe(400);
   });
+  it('should return error given an invalid id', async function() {
+    const response = await request(app).get('/jobs/500');
+    expect(response.statusCode).toBe(404);
+  });
 });
 
 describe('DELETE /jobs/:id', function() {
@@ -146,6 +154,10 @@ describe('DELETE /jobs/:id', function() {
 
     const dbData = await request(app).get('/jobs');
     expect(dbData.body.jobs.length).toBe(2);
+  });
+  it('should return error given an invalid id', async function() {
+    const response = await request(app).get('/jobs/500');
+    expect(response.statusCode).toBe(404);
   });
 });
 
