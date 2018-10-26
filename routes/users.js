@@ -1,6 +1,5 @@
 const express = require('express');
 const router = new express.Router();
-const Job = require('../models/job');
 const User = require('../models/user');
 const createUserSchema = require('../schema/createUserSchema.json');
 const updateUserSchema = require('../schema/updateUserSchema.json');
@@ -62,6 +61,7 @@ router.post('/', async function(req, res, next) {
 router.patch('/:username', async function(req, res, next) {
   try {
     const result = validate(req.body, updateUserSchema);
+    console.log(result.valid);
     if (!result.valid) {
       let error = {};
       error.message = result.errors.map(error => error.stack);

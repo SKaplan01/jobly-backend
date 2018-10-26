@@ -110,14 +110,21 @@ describe('PATCH /users/:username', function() {
     expect(response.statusCode).toBe(200);
   });
   it('should return error if data to update is invalid', async function() {
-    const response = await request(app)
-      .patch('/companies/silas')
+    const response1 = await request(app)
+      .patch('/users/silas')
       .send({
         last_name: 'Slytherin',
         email: 'silas@gmail.com',
         cats: true
       });
-    expect(response.statusCode).toBe(400);
+    const response2 = await request(app)
+      .patch('/users/silas')
+      .send({
+        last_name: 'Slytherin',
+        email: 'asjksakldjaskljdklas'
+      });
+    expect(response1.statusCode).toBe(400);
+    expect(response2.statusCode).toBe(400);
   });
   it('should return error given an invalid username', async function() {
     const response = await request(app).patch('/users/foo');
