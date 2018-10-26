@@ -4,87 +4,58 @@ const db = require('../db');
 const sqlForPartialUpdate = require('../helpers/partialUpdate');
 
 class Company {
-  //takes optional argument that is an object
-  //and has up to 3 keys {search:"am", min_employees: 10, max_employees: 100}
-  //returns object that contains key of baseQuery with value of query string and key of values with query data
-  // static buildQueryGetAll(...args) {
-  //   let values = [];
-  //   let baseQuery = `SELECT handle, name, num_employees, description, logo_url FROM companies`;
-  //   if (args.length === 0) {
-  //     return { baseQuery, values };
-  //   } else {
-  //     baseQuery = `${baseQuery} WHERE`;
-  //   }
-  //   if (args[0].search) {
-  //     values.push(`${args[0].search}%`);
-  //     baseQuery = `${baseQuery} (handle LIKE $1 OR name LIKE $1)`;
-  //   }
-  //   if (args[0].min_employees) {
-  //     values.push(+args[0].min_employees);
-  //     if (values.length > 1) {
-  //       baseQuery = `${baseQuery} AND num_employees>$2`;
-  //     } else {
-  //       baseQuery = `${baseQuery} num_employees>$1`;
-  //     }
-  //   }
-  //   if (args[0].max_employees) {
-  //     values.push(+args[0].max_employees);
-  //     if (values.length > 1) {
-  //       baseQuery = `${baseQuery} AND num_employees<$3`;
-  //     } else {
-  //       baseQuery = `${baseQuery} num_employees<$1`;
-  //     }
-  //     if (args[0].min_employees && args[0].max_employees) {
-  //       if (+args[0].min_employees > +args[0].max_employees) {
-  //         let error = new Error(
-  //           'min_employees must be less than max_employees'
-  //         );
-  //         error.status = 422;
-  //         throw error;
-  //       }
-  //     }
-  //   }
-  //   return { baseQuery, values };
-  // }
-
+  //takes object containing optional search, min, and max
+  //returns list of companies filtered by search criteria
   static async getAll({ search, min, max }) {
+    //if search, min, or max are undefined then they will default to values shown below
     search = search === undefined ? '%%' : `${search}%`;
     min = min === undefined ? -1 : +min;
     max = max === undefined ? 1000000000 : +max;
+
+    //if min is greater than max then throw 422 error
     if (min > max) {
       let error = new Error('min_employees must be less than max_employees');
       error.status = 422;
       throw error;
     }
+    //allows for search results to include companies who did not disclose num_employees (it's null)
     let result = await db.query(
-      `SELECT handle, name, num_employees, description, logo_url FROM companies WHERE (handle ILIKE $1 OR name ILIKE $1)
-      AND num_employees>$2 AND num_employees<$3`,
+      `SELECT handle, name, num_employees, description, logo_url 
+      FROM companies 
+      WHERE (handle ILIKE $1 OR name ILIKE $1)
+      AND (num_employees>=$2 AND num_employees<=$3) 
+      OR (num_employees IS null)`,
       [search, min, max]
     );
     return result.rows;
   }
 
-  // //runs query that was built in buildQueryGetAll()
-  // //return result.rows from db
-  // static async runQueryGetAll({ baseQuery, values }) {
-  //   let results = await db.query(baseQuery, values);
-  //   return results.rows;
-  // }
-
   //gets one company with a specific handle
   static async getOne(handle) {
     let result = await db.query(
-      `SELECT handle, name, num_employees, description, logo_url 
+      `SELECT handle, name, num_employees, description, logo_url
       FROM companies
       WHERE handle=$1`,
       [handle]
     );
+
     if (result.rows.length === 0) {
       let error = new Error(`Company ${handle} not found`);
       error.status = 404;
       throw error;
     }
+
     return result.rows[0];
+  }
+
+  static async getJobs(handle) {
+    let result = await db.query(
+      `SELECT id, title, salary, equity, 
+    company_handle, date_posted FROM jobs WHERE company_handle=$1`,
+      [handle]
+    );
+
+    return result.rows;
   }
 
   /** register new company -- returns
@@ -103,19 +74,35 @@ class Company {
 
   //update data for one company. Returns updated company.
   static async updateOne(handle, companyUpdates) {
-    let { query, values } = sqlForPartialUpdate(
-      'companies',
-      companyUpdates,
-      'handle',
-      handle
-    );
-    let result = await db.query(query, values);
-    return result.rows[0];
+    try {
+      let { query, values } = sqlForPartialUpdate(
+        'companies',
+        companyUpdates,
+        'handle',
+        handle
+      );
+      let result = await db.query(query, values);
+      return result.rows[0];
+    } catch (err) {
+      let error = new Error(
+        'Cannot update this company. Invalid company data.'
+      );
+      error.status = 400;
+      throw error;
+    }
   }
 
   //delete company from database
   static async deleteOne(handle) {
-    db.query(`DELETE FROM companies WHERE handle=$1`, [handle]);
+    let result = await db.query(
+      `DELETE FROM companies WHERE handle=$1 RETURNING handle`,
+      [handle]
+    );
+    if (result.rows.length === 0) {
+      let error = new Error(`Company ${handle} not found`);
+      error.status = 404;
+      throw error;
+    }
   }
 }
 

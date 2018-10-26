@@ -10,13 +10,6 @@ const { validate } = require('jsonschema');
 router.get('/', async function(req, res, next) {
   try {
     let { search, min, max } = req.query;
-    console.log('Min:', min);
-    console.log('Max:', max);
-    // if (+min > +max) {
-    //   let error = new Error('min_employees must be less than max_employees');
-    //   error.status = 422;
-    //   throw error;
-    // }
     let companies = await Company.getAll({ search, min, max });
     return res.json({ companies });
   } catch (err) {
@@ -53,6 +46,8 @@ router.get('/:handle', async function(req, res, next) {
   try {
     let { handle } = req.params;
     let company = await Company.getOne(handle);
+    let jobs = await Company.getJobs(handle);
+    company.jobs = jobs;
     return res.json({ company });
   } catch (err) {
     return next(err);
