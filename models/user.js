@@ -6,35 +6,29 @@ const { WORK_FACTOR } = require('../config.js');
 class User {
   //returns list of users
   static async getAll() {
-    //allows for search results to include companies who did not disclose num_employees (it's null)
     let result = await db.query(
-      `SELECT handle, name, num_employees, description, logo_url 
-      FROM companies 
-      WHERE (handle ILIKE $1 OR name ILIKE $1)
-      AND (num_employees>=$2 AND num_employees<=$3) 
-      OR (num_employees IS null)`,
-      [search, min, max]
+      `SELECT username, first_name, last_name, email FROM users`
     );
     return result.rows;
   }
 
-  //gets one company with a specific handle
-  static async getOne(handle) {
-    let result = await db.query(
-      `SELECT handle, name, num_employees, description, logo_url
-      FROM companies
-      WHERE handle=$1`,
-      [handle]
-    );
+  // // //gets one company with a specific handle
+  // // static async getOne(handle) {
+  // //   let result = await db.query(
+  // //     `SELECT handle, name, num_employees, description, logo_url
+  // //     FROM companies
+  // //     WHERE handle=$1`,
+  // //     [handle]
+  // //   );
 
-    if (result.rows.length === 0) {
-      let error = new Error(`Company ${handle} not found`);
-      error.status = 404;
-      throw error;
-    }
+  //   if (result.rows.length === 0) {
+  //     let error = new Error(`Company ${handle} not found`);
+  //     error.status = 404;
+  //     throw error;
+  //   }
 
-    return result.rows[0];
-  }
+  //   return result.rows[0];
+  // }
 
   static async getJobs(handle) {
     let result = await db.query(
@@ -57,15 +51,21 @@ class User {
     email,
     photo_url
   }) {
-    const hashedPassword = await bcrypt.hash(password, WORK_FACTOR);
-    let result = await db.query(
-      `INSERT INTO users 
+    try {
+      const hashedPassword = await bcrypt.hash(password, WORK_FACTOR);
+      let result = await db.query(
+        `INSERT INTO users 
       (username, password, first_name, last_name, email, photo_url)
       VALUES ($1, $2, $3, $4, $5, $6)
       RETURNING username, first_name, last_name, email, photo_url, is_admin`,
-      [username, hashedPassword, first_name, last_name, email, photo_url]
-    );
-    return result.rows[0];
+        [username, hashedPassword, first_name, last_name, email, photo_url]
+      );
+      return result.rows[0];
+    } catch (err) {
+      let error = new Error(err.detail);
+      error.status = 400;
+      throw error;
+    }
   }
 
   //update data for one company. Returns updated company.
