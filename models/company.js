@@ -61,6 +61,7 @@ class Company {
   /** register new company -- returns
    *    {handle, name, num_employees, description, logo_url}
    */
+  //add try catch with custom error - for any error that is raised by postgres
   static async create({ handle, name, num_employees, description, logo_url }) {
     let result = await db.query(
       `INSERT INTO companies 

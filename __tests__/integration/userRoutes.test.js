@@ -84,6 +84,19 @@ describe('GET /users', function() {
   });
 });
 
+describe('GET /users/:username', function() {
+  it('should return one user matching the given username', async function() {
+    const response = await request(app).get('/users/silas');
+    expect(response.body.user.username).toBe('silas');
+    expect(response.body.user.email).toBe('silas@slytherin.edu');
+    expect(response.statusCode).toBe(200);
+  });
+  it('should return error given an invalid username', async function() {
+    const response = await request(app).get('/users/foo');
+    expect(response.statusCode).toBe(404);
+  });
+});
+
 afterEach(async function() {
   await db.query(`DELETE from users`);
 });

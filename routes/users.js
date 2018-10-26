@@ -15,6 +15,17 @@ router.get('/', async function(req, res, next) {
   }
 });
 
+// get data about specific user. Return JSON with info about this user
+router.get('/:username', async function(req, res, next) {
+  try {
+    let { username } = req.params;
+    let user = await User.getOne(username);
+    return res.json({ user });
+  } catch (err) {
+    return next(err);
+  }
+});
+
 //posts a new user to the database and return the user
 router.post('/', async function(req, res, next) {
   try {

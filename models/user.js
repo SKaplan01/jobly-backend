@@ -12,32 +12,22 @@ class User {
     return result.rows;
   }
 
-  // // //gets one company with a specific handle
-  // // static async getOne(handle) {
-  // //   let result = await db.query(
-  // //     `SELECT handle, name, num_employees, description, logo_url
-  // //     FROM companies
-  // //     WHERE handle=$1`,
-  // //     [handle]
-  // //   );
-
-  //   if (result.rows.length === 0) {
-  //     let error = new Error(`Company ${handle} not found`);
-  //     error.status = 404;
-  //     throw error;
-  //   }
-
-  //   return result.rows[0];
-  // }
-
-  static async getJobs(handle) {
+  // //gets one user with a specific username
+  static async getOne(username) {
     let result = await db.query(
-      `SELECT id, title, salary, equity, 
-    company_handle, date_posted FROM jobs WHERE company_handle=$1`,
-      [handle]
+      `SELECT username, first_name, last_name, email, photo_url
+      FROM users
+      WHERE username=$1`,
+      [username]
     );
 
-    return result.rows;
+    if (result.rows.length === 0) {
+      let error = new Error(`Company ${username} not found`);
+      error.status = 404;
+      throw error;
+    }
+
+    return result.rows[0];
   }
 
   /** register new user -- returns
