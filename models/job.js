@@ -49,21 +49,34 @@ class Job {
       return result.rows[0];
     } catch (err) {
       let error = new Error('Cannot create this job. Invalid job data.');
-      error.status = 422;
+      error.status = 422; // UNPROCESSABLE ENTITY
       throw error;
     }
   }
 
   // update data for one job. Returns updated job.
   static async updateOne(id, jobUpdates) {
-    let { query, values } = sqlForPartialUpdate('jobs', jobUpdates, 'id', id);
-    let result = await db.query(query, values);
-    return result.rows[0];
+    try {
+      let { query, values } = sqlForPartialUpdate('jobs', jobUpdates, 'id', id);
+      let result = await db.query(query, values);
+      return result.rows[0];
+    } catch (err) {
+      let error = new Error('Cannot update this job. Invalid job data.');
+      error.status = 400;
+      throw error;
+    }
   }
 
   //delete company from database
   static async deleteOne(id) {
-    db.query(`DELETE FROM jobs WHERE id=$1`, [id]);
+    let result = await db.query(`DELETE FROM jobs WHERE id=$1 RETURNING id`, [
+      id
+    ]);
+    if (result.rows.length === 0) {
+      let error = new Error(`Company ${id} not found`);
+      error.status = 404;
+      throw error;
+    }
   }
 }
 

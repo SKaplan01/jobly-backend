@@ -3,6 +3,8 @@ const db = require('../../db');
 const request = require('supertest');
 const app = require('../../app');
 
+let job_id;
+
 beforeEach(async function() {
   await db.query(
     `INSERT INTO companies 
@@ -11,13 +13,14 @@ beforeEach(async function() {
     ('google', 'google', '5000','made a search engine'),
     ('starb', 'starbucks', '4', 'make coffee')`
   );
-  await db.query(
+  const jobQuery = await db.query(
     `INSERT INTO jobs 
-    (id, title, salary, equity, company_handle, date_posted)
-    VALUES (1, 'software', 100000, 0.2, 'amz', CURRENT_TIMESTAMP),
-    (2, 'cook', 60000, 0, 'google', CURRENT_TIMESTAMP),
-    (3, 'QA tester', 70000, 0.3, 'google', CURRENT_TIMESTAMP)`
+    (title, salary, equity, company_handle, date_posted)
+    VALUES ('software', 100000, 0.2, 'amz', CURRENT_TIMESTAMP),
+    ('cook', 60000, 0, 'google', CURRENT_TIMESTAMP),
+    ('QA tester', 70000, 0.3, 'google', CURRENT_TIMESTAMP) RETURNING id`
   );
+  job_id = jobQuery.rows[0].id;
 });
 
 describe('POST /jobs', function() {
@@ -97,7 +100,7 @@ describe('GET /jobs', function() {
 
 describe('GET /jobs/:id', function() {
   it('should return one job matching the given id', async function() {
-    const response = await request(app).get('/jobs/1');
+    const response = await request(app).get(`/jobs/${job_id}`);
     expect(response.body.job.company_handle).toBe('amz');
     expect(response.statusCode).toBe(200);
   });
@@ -114,7 +117,7 @@ describe('GET /jobs/:id', function() {
 describe('PATCH /jobs/:id', function() {
   it('should return the updated job', async function() {
     const response = await request(app)
-      .patch('/jobs/1')
+      .patch(`/jobs/${job_id}`)
       .send({ salary: 50000, title: 'web development' });
     console.log(response.body);
     expect(response.body.job.salary).toBe(50000);
@@ -123,7 +126,7 @@ describe('PATCH /jobs/:id', function() {
   });
   it('should return error if data to update is invalid', async function() {
     const response = await request(app)
-      .patch('/jobs/1')
+      .patch(`/jobs/${job_id}`)
       .send({
         salary: 50000,
         title: 'web development',
@@ -133,7 +136,7 @@ describe('PATCH /jobs/:id', function() {
   });
   it('should return error if equity is more than 1', async function() {
     const response = await request(app)
-      .patch('/jobs/1')
+      .patch(`/jobs/${job_id}`)
       .send({
         equity: 2,
         title: 'web development'
@@ -141,14 +144,14 @@ describe('PATCH /jobs/:id', function() {
     expect(response.statusCode).toBe(400);
   });
   it('should return error given an invalid id', async function() {
-    const response = await request(app).get('/jobs/500');
-    expect(response.statusCode).toBe(404);
+    const response = await request(app).patch('/jobs/500');
+    expect(response.statusCode).toBe(400);
   });
 });
 
 describe('DELETE /jobs/:id', function() {
   it('should delete a job from database and return a message - job deleted', async function() {
-    const response = await request(app).delete('/jobs/1');
+    const response = await request(app).delete(`/jobs/${job_id}`);
     expect(response.statusCode).toBe(200);
     expect(response.body.message).toBe('Job deleted');
 
@@ -156,7 +159,14 @@ describe('DELETE /jobs/:id', function() {
     expect(dbData.body.jobs.length).toBe(2);
   });
   it('should return error given an invalid id', async function() {
-    const response = await request(app).get('/jobs/500');
+    const response = await request(app).delete('/jobs/500');
+    expect(response.statusCode).toBe(404);
+  });
+});
+
+describe('Go to invalid route', function() {
+  it('should return a 404 error', async function() {
+    const response = await request(app).get('/silas');
     expect(response.statusCode).toBe(404);
   });
 });

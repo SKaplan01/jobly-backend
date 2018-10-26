@@ -102,8 +102,8 @@ describe('PATCH /companies/:handle', function() {
     expect(response.statusCode).toBe(400);
   });
   it('should return error given an invalid handle', async function() {
-    const response = await request(app).get('/companies/foo');
-    expect(response.statusCode).toBe(404);
+    const response = await request(app).patch('/companies/foo');
+    expect(response.statusCode).toBe(400);
   });
 });
 
@@ -117,7 +117,14 @@ describe('DELETE /companies/:handle', function() {
     expect(dbData.body.companies.length).toBe(2);
   });
   it('should return error given an invalid handle', async function() {
-    const response = await request(app).get('/companies/foo');
+    const response = await request(app).delete('/companies/foo');
+    expect(response.statusCode).toBe(404);
+  });
+});
+
+describe('Go to invalid route', function() {
+  it('should return a 404 error', async function() {
+    const response = await request(app).get('/rithm');
     expect(response.statusCode).toBe(404);
   });
 });
