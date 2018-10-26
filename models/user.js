@@ -58,34 +58,32 @@ class User {
     }
   }
 
-  //update data for one company. Returns updated company.
-  static async updateOne(handle, companyUpdates) {
+  //update data for one user. Returns updated user.
+  static async updateOne(username, userUpdates) {
     try {
       let { query, values } = sqlForPartialUpdate(
-        'companies',
-        companyUpdates,
-        'handle',
-        handle
+        'users',
+        userUpdates,
+        'username',
+        username
       );
       let result = await db.query(query, values);
       return result.rows[0];
     } catch (err) {
-      let error = new Error(
-        'Cannot update this company. Invalid company data.'
-      );
+      let error = new Error('Cannot update this user. Invalid user data.');
       error.status = 400;
       throw error;
     }
   }
 
-  //delete company from database
-  static async deleteOne(handle) {
+  //delete user from database
+  static async deleteOne(username) {
     let result = await db.query(
-      `DELETE FROM companies WHERE handle=$1 RETURNING handle`,
-      [handle]
+      `DELETE FROM users WHERE username=$1 RETURNING username`,
+      [username]
     );
     if (result.rows.length === 0) {
-      let error = new Error(`Company ${handle} not found`);
+      let error = new Error(`User ${username} not found`);
       error.status = 404;
       throw error;
     }

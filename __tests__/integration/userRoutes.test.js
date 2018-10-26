@@ -97,6 +97,55 @@ describe('GET /users/:username', function() {
   });
 });
 
+describe('PATCH /users/:username', function() {
+  it('should return the updated user', async function() {
+    const response = await request(app)
+      .patch('/users/silas')
+      .send({
+        last_name: 'Slytherin',
+        email: 'silas@gmail.com'
+      });
+    expect(response.body.user.last_name).toBe('Slytherin');
+    expect(response.body.user.email).toBe('silas@gmail.com');
+    expect(response.statusCode).toBe(200);
+  });
+  it('should return error if data to update is invalid', async function() {
+    const response = await request(app)
+      .patch('/companies/silas')
+      .send({
+        last_name: 'Slytherin',
+        email: 'silas@gmail.com',
+        cats: true
+      });
+    expect(response.statusCode).toBe(400);
+  });
+  it('should return error given an invalid username', async function() {
+    const response = await request(app).patch('/users/foo');
+    expect(response.statusCode).toBe(400);
+  });
+});
+
+describe('DELETE /users/:username', function() {
+  it('should delete a user from database and return a message - user deleted', async function() {
+    const response = await request(app).delete('/users/silas');
+    expect(response.statusCode).toBe(200);
+    expect(response.body.message).toBe('User deleted');
+
+    const dbData = await request(app).get('/users');
+    expect(dbData.body.users.length).toBe(1);
+  });
+  it('should return error given an invalid handle', async function() {
+    const response = await request(app).delete('/users/foo');
+    expect(response.statusCode).toBe(404);
+  });
+});
+
+describe('Go to invalid route', function() {
+  it('should return a 404 error', async function() {
+    const response = await request(app).get('/rithm');
+    expect(response.statusCode).toBe(404);
+  });
+});
 afterEach(async function() {
   await db.query(`DELETE from users`);
 });
